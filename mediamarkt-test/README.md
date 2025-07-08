@@ -3,9 +3,8 @@
 
 ## Installation Steps
 
-1. **Clone the repository:**
+1. **Clone the main repository and then cd to this folder:**
    ```sh
-   git clone <repository-url>
    cd mediamarkt-test
    ```
 
