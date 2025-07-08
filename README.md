@@ -1,3 +1,3 @@
 # Marketplace test
 
-Please read the README.md file to bootstrap each project.
+Please read the README.md file in each folder to bootstrap each project.
