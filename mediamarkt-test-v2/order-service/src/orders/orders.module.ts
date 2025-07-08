@@ -4,9 +4,11 @@ import { Order, OrderSchema } from './schemas/order.schema';
 import { OrderController } from './orders.controller';
 import { OrderService } from './orders.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     ClientsModule.register([
       {

@@ -6,12 +6,17 @@ import {
   UseInterceptors,
   BadRequestException,
   Get,
+  UseGuards,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InvoiceService } from './invoice.service';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { EventPattern, Payload } from '@nestjs/microservices';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { AuthGuard } from '@nestjs/passport';
+import { UserRoles } from 'src/common/roles.enum';
 
 interface RabbitPayload {
   orderId: string
@@ -21,6 +26,8 @@ interface RabbitPayload {
 export class InvoiceController {
   constructor(private readonly invoiceService: InvoiceService) { }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRoles.SELLER)
   @Post(':orderId/upload')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -49,11 +56,15 @@ export class InvoiceController {
     return this.invoiceService.uploadInvoice({ orderId, pdfUrl });
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRoles.SELLER)
   @Get(':invoiceId')
   async getOrderDetails(@Param('invoiceId') invoiceId: string) {
     return this.invoiceService.getInvoiceDetails(invoiceId);
   }
 
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRoles.SELLER)
   @Get('')
   async getInvoices() {
     return this.invoiceService.listInvoices();

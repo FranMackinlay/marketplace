@@ -13,13 +13,13 @@ export class OrderService {
     @Inject('ORDERS_SERVICE') private readonly client: ClientProxy
 ) { }
 
-  async createOrder(orderData: OrderDto): Promise<Order> {
-    const order = new this.orderModel({ ...orderData, status: OrderStatus.CREATED });
+  async createOrder(orderData: OrderDto, userId: string): Promise<Order> {
+    const order = new this.orderModel({ ...orderData, status: OrderStatus.CREATED, customerId: userId });
     return await order.save();
   }
 
-  async listOrders(): Promise<Order[]> {
-    return this.orderModel.find().exec();
+  async listOrders(userId: string): Promise<Order[]> {
+    return this.orderModel.find({customerId: userId}).exec();
   }
 
   async getOrderDetails(orderId: string): Promise<Order | null> {
@@ -32,8 +32,6 @@ export class OrderService {
       { status },
       { new: true },
     ).exec();
-
-    console.log('updateOrder', updatedOrder)
 
     if (updatedOrder && status === OrderStatus.SHIPPED) {
       this.client.emit('ORDER_SHIPPED', { orderId });
