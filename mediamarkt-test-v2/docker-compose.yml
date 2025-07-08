@@ -1,0 +1,56 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  mongodb:
+    image: mongo:5
+    container_name: mongodb_mediamarkt
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongodb_data:/data/db
+
+  order-service:
+    build:
+      context: ./order-service
+    container_name: order-service
+    ports:
+      - "3000:3000"
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - MONGO_URL=${MONGO_URI}
+    depends_on:
+      - rabbitmq
+      - mongodb
+    env_file:
+      - .env
+
+  invoice-service:
+    build:
+      context: ./invoice-service
+    container_name: invoice-service
+    ports:
+      - "3001:3001"
+    environment:
+      - RABBITMQ_URL=amqp://rabbitmq:5672
+      - MONGO_URL=${MONGO_URI}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
+    depends_on:
+      - rabbitmq
+      - mongodb
+    env_file:
+      - .env
+
+volumes:
+  mongodb_data:
